@@ -1,7 +1,8 @@
 # brl-converter-frontend
 
 ### environment requirements
-- run: `npx http-server`
+- nothing special 
+- run(local): `npx http-server`
 
 ### feature
 - visualize uploaded brl format file to braille text(1)
