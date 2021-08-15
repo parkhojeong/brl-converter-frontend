@@ -1,232 +1,207 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <style>
-      #diff-container {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        grid-column-gap: 50px;
-        height: 50vh;
-        background-color: grey;
-        padding: 20px;
-        margin: 20px 0;
-        border-radius: 10px;
-      }
 
-      #diff-file1,
-      #diff-file2 {
-        background-color: white;
-        overflow: auto;
-        font-size: 20px;
-      }
+<head>
+  <style>
+    .diff-input-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-gap: 50px;
+    }
 
-      #diff-compare-result {
-        width: 50%;
-        min-height: 5vh;
-        max-height: 50vh;
-        border-radius: 10px;
-        box-shadow: 0 0 10px black;
-      }
-    </style>
-  </head>
-  <body>
-    <pre id="display"></pre>
+    .diff-view-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-column-gap: 50px;
+      height: 50vh;
+      background-color: grey;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 10px;
+    }
+
+    #diff-view1,
+    #diff-view2 {
+      background-color: white;
+      overflow: auto;
+      font-size: 20px;
+    }
+
+    #diff-compare-result {
+      width: 100%;
+      min-height: 5vh;
+      max-height: 50vh;
+      border-radius: 10px;
+      box-shadow: 0 0 10px black;
+      margin-top: 10px;
+      font-size: 20px;
+      overflow: scroll;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="diff-input-container">
+    <label>
+      BRL 업로드:
+      <input type="file" id="diff-input-brl" />
+    </label>
 
     <form id="diff-form" enctype="multipart/form-data">
       <label>
-        BRL 업로드
-        <input type="file" id="diff-input1" />
+        사진 업로드:
+        <input type="file" id="diff-input-img" />
       </label>
-
-      <label>
-        사진 업로드
-        <input type="file" id="diff-input2" />
-      </label>
-      <br />
-
-      <div id="diff-container">
-        <div id="diff-file1"></div>
-        <div id="diff-file2"></div>
-      </div>
-
       <button type="submit">사진을 brl로 변환하기</button>
+
     </form>
+  </div>
 
-    <button id="diff-compare-button" type="button">비교하기</button>
-    <div id="diff-compare-result"></div>
+  <div class="diff-view-container">
+    <div id="diff-view1"></div>
+    <div id="diff-view2"></div>
+  </div>
 
-    <script src="./node_modules/diff/dist/diff.js"></script>
-    <script>
-      const form = document.getElementById('diff-form');
-      const input1 = document.getElementById('diff-input1');
-      const input2 = document.getElementById('diff-input2');
-      const compareButton = document.getElementById('diff-compare-button');
-      let originFile;
-      let originFileText;
-      let uploadedImg;
-      let convertedText;
-      let xhr;
 
-      compareButton.addEventListener('click', function () {
-        if (!originFile) {
-          alert('brl 파일을 업로드 해주세요.');
-          return;
-        }
 
-        if (!originFileText) {
-          alert(
-            'brl 파일 변환에 실패하였습니다. brl 파일을 다시 업로드 해주세요.'
-          );
-          return;
-        }
+  <button id="diff-compare-button" type="button">비교하기</button>
 
-        if (!convertedText) {
-          alert('사진을 업로드한 후 변환을 해주세요.');
-          return;
-        }
+  <div id="diff-compare-result"></div>
 
-        const one = originFileText;
-        const other =
-          ' ⠗⠥⠅⠕⠕⠕⠕⠕⠕⠕⠕⠕⠕⠕⠕⠕⠕⠕  ⠺⠕⠙⠊⠞⠑⠇⠫⠀⠊   ⠀⠗⠑⠙⠁⠅⠞⠕⠗⠁ ⠇⠑⠝⠊⠝⠛⠗⠁⠙⠎⠅⠕⠛⠕⠀⠕⠞⠙⠑⠇⠁⠀⠙⠑⠞ ⠇⠊⠞⠑⠗⠁⠞⠥⠗⠮⠀⠕⠛⠊⠵⠄⠁⠲⠀⠝⠑⠙⠁⠗⠕ ⠍⠁⠅⠎⠊⠍⠀⠛⠕⠗⠾⠅⠊⠯⠀⠝⠁⠵⠺⠁⠇⠀⠑⠛⠕ ⠦⠕⠎⠝⠕⠺⠕⠏⠕⠇ ⠕⠚⠝⠊⠅⠕⠍⠀⠙⠑⠞⠎⠅⠕⠯ ⠇⠊⠞⠑⠗⠁⠞⠥⠗⠮⠀⠥⠀⠝⠁⠎⠴⠀⠊⠀⠊⠍⠑⠝⠝ ⠍⠁⠗⠱⠁⠅⠥⠀⠏⠕⠗⠥⠟⠊⠇⠀⠺⠀⠼⠁⠊⠉⠙⠀⠛ ⠺⠮⠎⠞⠥⠏⠇⠑⠝⠊⠑⠀⠎⠀⠙⠕⠅⠇⠁⠙⠕⠍⠀⠦⠕ ⠃⠕⠇⠾⠱⠕⠯⠀⠇⠊⠞⠑⠗⠁⠞⠥⠗⠑⠀⠙⠇⠫⠀⠍⠁ ⠅⠊⠓⠴⠀⠝⠁⠀⠏⠑⠗⠺⠕⠍⠀⠺⠎⠑⠎⠕⠳⠵⠝⠕⠍ ⠎⠷⠑⠵⠙ ⠑⠀⠎⠕⠺⠑⠞⠎⠅⠊⠓⠀⠏⠊⠎⠁⠞⠑⠇⠑ ⠁⠺⠞⠕⠗⠀⠺⠑⠎⠑⠇⠮⠓⠀⠊⠀⠵⠁⠃⠁⠺⠝⠮⠓ ⠓⠕⠺⠀⠙⠇⠫⠀⠗⠑⠃⠫⠞⠂⠵ ⠛⠁⠙⠕⠅⠂⠏⠑⠎ ⠎⠞⠊⠓⠕⠞⠺⠕⠗⠝⠮⠓ ⠀⠎⠅⠁⠵⠕⠅⠀⠊⠀⠏⠕⠺ ⠎⠞⠑⠯⠂⠍⠁⠗⠱⠁⠅⠀⠺⠎⠑⠛⠙⠁⠀⠺⠊⠙⠑⠇';
-        const color = '';
+  <script src="./node_modules/diff/dist/diff.js"></script>
+  <script>
+    let uploadedBrl;
+    let brlReadedResult;
+    let uploadedImg;
+    let imgConvertedResult;
+    let xhr;
+    const DIFF_CONVERT_API_URL = "http://3.34.144.130:8000/convert/"
 
-        let span = null;
+    document.getElementById('diff-input-brl').addEventListener('change', function (event) {
+      uploadedBrl = event.target.files[0];
 
-        const diff = Diff.diffChars(one, other);
-        const display = document.getElementById('diff-compare-result');
-        const fragment = document.createDocumentFragment();
-
-        diff.forEach((part) => {
-          // green for additions, red for deletions
-          // grey for common parts
-          const color = part.added ? 'green' : part.removed ? 'red' : 'grey';
-          span = document.createElement('span');
-          span.style.color = color;
-          span.appendChild(document.createTextNode(part.value));
-          fragment.appendChild(span);
-        });
-
-        display.appendChild(fragment);
-      });
-
-      function makeRequest() {
-        xhr = new XMLHttpRequest();
-        // const url = 'https://jsonplaceholder.typicode.com/todos/1';
-        const url = 'http://127.0.0.1:8000/convert/';
-        if (!xhr) {
-          console.error('xhr 생성 에러');
-        }
-        xhr.onload = handleResponse;
-        xhr.open('POST', url, true);
-        const formData = new FormData();
-        formData.append('file', uploadedImg);
-        // xhr.setRequestHeader('Access-Control-Allow-Origin', "http://127.0.0.1:3000");
-        // xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        xhr.send(formData);
-      }
-
-      function handleResponse() {
+      (async function read() {
         try {
-          if (xhr.status === 200) {
-            console.log('status : 200');
-            alert(xhr.responseText);
+          const res = await readFile(uploadedBrl);
 
-            convertedText = xhr.responseText;
-            paint(convertedText, 'diff-file2');
-            console.log(xhr);
-          } else {
-            throw new Error(xhr.status, xhr.status.Text);
-          }
-        } catch (e) {
-          console.log(e.description);
+          brlReadedResult = res;
+
+          paintText('diff-view1', brlReadedResult);
+        } catch (error) {
+          console.error(error);
         }
+      })();
+    });
+
+    document.getElementById('diff-input-img').addEventListener('change', function (event) {
+      uploadedImg = event.target.files[0];
+    });
+
+    document.getElementById('diff-form').addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      if (!uploadedImg) {
+        alert('변환할 이미지를 업로드 해주세요');
+        return;
       }
 
-      function readFile(file) {
-        return new Promise(function (resolve, reject) {
-          var fr = new FileReader();
-          fr.onload = function () {
-            resolve(fr.result);
-          };
-          fr.onerror = reject;
-          fr.readAsText(file);
-        });
+      makeFormRequest(DIFF_CONVERT_API_URL, uploadedImg, handleConvertResponse);
+    });
+
+    document.getElementById('diff-compare-button').addEventListener('click', function (event) {
+      if (!uploadedBrl) {
+        alert('brl 파일을 업로드 해주세요.');
+        return;
       }
 
-      function paint(text, elementId) {
-        const ele = document.getElementById(elementId);
-        ele.appendChild(document.createTextNode(text));
+      if (!brlReadedResult) {
+        alert(
+          'brl 파일 변환에 실패하였습니다. brl 형식의 파일을 다시 업로드 해주세요.'
+        );
+        return;
       }
 
-      function handleSubmit(event) {
-        event.preventDefault();
-        async function read() {
-          if (!originFile) {
-            alert('brl 파일을 업로드 해주세요.');
-            throw new Error('파일 업로드 하지 않음 에러');
-            return;
-          }
-
-          originFileText = await readFile(originFile);
-          paint(originFileText, 'diff-file2');
-
-          console.log(res);
-        }
-
-        // try {
-        //     read();
-        // } catch (error) {
-        //     console.error(error);
-        // }
-
-        makeRequest();
+      if (!uploadedImg) {
+        alert('사진을 업로드한 후 변환을 해주세요.');
+        return;
       }
 
-      function handleInput1Change(event) {
-        originFile = event.target.files[0];
-
-        (async function read() {
-          try {
-            const res = await readFile(originFile);
-            originFileText = res;
-            paint(originFileText, 'diff-file1');
-          } catch (error) {
-            console.error(error);
-          }
-        })();
+      if (!imgConvertedResult) {
+        alert('업로드한 사진을 변환해주세요.');
+        return;
       }
 
-      function handleInput2Change(event) {
-        uploadedImg = event.target.files[0];
-      }
+      paintDiff("diff-compare-result", brlReadedResult, imgConvertedResult, {
+        defaultColor: "orange"
+      });
+    });
 
-      form.addEventListener('submit', handleSubmit);
-      input1.addEventListener('change', handleInput1Change);
-      input2.addEventListener('change', handleInput2Change);
+    function readFile(file) {
+      return new Promise(function (resolve, reject) {
+        var fr = new FileReader();
+        fr.onload = function () {
+          resolve(fr.result);
+        };
+        fr.onerror = reject;
+        fr.readAsText(file);
+      });
+    }
 
-      console.log(Diff);
+    function paintText(eleId, text) {
+      const ele = document.getElementById(eleId);
+      console.log(ele);
+      ele.innerText = text;
+      // ele.appendChild(document.createTextNode(text));
+    }
 
-      const one = 'beep boop';
-      const other = 'beep boob blah';
-      const color = '';
-
-      let span = null;
-
+    function paintDiff(eleId, one, other, colorOptions) {
       const diff = Diff.diffChars(one, other);
-      const display = document.getElementById('display');
       const fragment = document.createDocumentFragment();
 
+      const {
+        addedColor = 'green', removedColor = 'red', defaultColor = 'grey'
+      } = colorOptions;
+
       diff.forEach((part) => {
-        // green for additions, red for deletions
-        // grey for common parts
-        const color = part.added ? 'green' : part.removed ? 'red' : 'grey';
-        span = document.createElement('span');
+        const color = part.added ? addedColor : part.removed ? removedColor : defaultColor;
+        const span = document.createElement('span');
         span.style.color = color;
         span.appendChild(document.createTextNode(part.value));
         fragment.appendChild(span);
       });
 
-      display.appendChild(fragment);
-    </script>
-  </body>
+      document.getElementById(eleId).appendChild(fragment);
+    }
+
+    function makeFormRequest(url, file, onload) {
+      xhr = new XMLHttpRequest();
+
+      if (!xhr) {
+        console.error('xhr 생성 에러');
+      }
+      xhr.onload = onload;
+      xhr.open('POST', url, true);
+      const formData = new FormData();
+      formData.append('file', file);
+
+      xhr.send(formData);
+    }
+
+
+    function handleConvertResponse() {
+      try {
+        if (xhr.status === 200) {
+          imgConvertedResult = xhr.responseText;
+          paintText('diff-view2', imgConvertedResult, );
+          console.log(xhr);
+        } else {
+          throw new Error(xhr.status, xhr.status.Text);
+        }
+      } catch (e) {
+        console.log(e.description);
+      }
+    }
+  </script>
+</body>
+
 </html>
