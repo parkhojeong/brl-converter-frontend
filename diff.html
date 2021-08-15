@@ -63,7 +63,7 @@
   </div>
 
   <button id="diff-compare-button" type="button">비교하기</button>
-  
+
   <div id="diff-compare-result"></div>
 
   <script src="./node_modules/diff/dist/diff.js"></script>
@@ -129,7 +129,12 @@
         return;
       }
 
-      paintDiff("diff-compare-result", brlReadedResult, imgConvertedResult);
+      const ele = document.getElementById('diff-compare-result');
+      while (ele.hasChildNodes()) {
+        ele.removeChild(ele.firstChild);
+      }
+
+      paintDiff(ele, brlReadedResult, imgConvertedResult);
     });
 
     function readFile(file) {
@@ -144,7 +149,7 @@
     }
 
 
-    function paintDiff(eleId, one, other, colorOptions = {}) {
+    function paintDiff(ele, one, other, colorOptions = {}) {
       const diff = Diff.diffChars(one, other);
       const fragment = document.createDocumentFragment();
 
@@ -160,7 +165,7 @@
         fragment.appendChild(span);
       });
 
-      document.getElementById(eleId).appendChild(fragment);
+      ele.appendChild(fragment);
     }
 
     function makeFormRequest(url, file, onload) {
