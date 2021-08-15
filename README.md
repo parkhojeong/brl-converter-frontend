@@ -2,6 +2,9 @@
 
 ### environment requirements
 - nothing special 
+
+### 
+- `npm install`
 - run(local): `npx http-server`
 
 ### feature
