@@ -9,6 +9,10 @@
       grid-gap: 50px;
     }
 
+    .diff-input-container>#diff-form>select {
+      margin: 10px 0;
+    }
+
     .diff-view-container {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -52,6 +56,15 @@
         사진 업로드:
         <input type="file" id="diff-input-img" />
       </label>
+      <select id="diff-select-language" name="language">
+        <option value="EN" selected>English (grade 1)</option>
+        <option value="RU">Russian</option>
+        <option value="UZ">Uzbek (cyrillic)</option>
+        <option value="UZL">Uzbek (latin)</option>
+        <option value="LV">Latvian</option>
+        <option value="GR">Greek</option>
+      </select>
+      <br />
       <button type="submit">사진을 brl로 변환하기</button>
 
     </form>
@@ -72,6 +85,8 @@
     let brlReadedResult;
     let uploadedImg;
     let imgConvertedResult;
+    let selectedLanguage = "EN";
+    const ALLOWED_LANGUAGES = ['EN', 'RU', 'UZ', 'UZL', 'LV', 'GR'];
     const DIFF_CONVERT_API_URL = "http://3.34.144.130:8000/convert/"
 
     document.getElementById('diff-input-brl').addEventListener('change', function (event) {
@@ -94,11 +109,20 @@
       uploadedImg = event.target.files[0];
     });
 
+    document.getElementById('diff-select-language').addEventListener('change', function (event) {
+      selectedLanguage = event.target;
+    })
+
     document.getElementById('diff-form').addEventListener('submit', function (event) {
       event.preventDefault();
 
       if (!uploadedImg) {
         alert('변환할 이미지를 업로드 해주세요');
+        return;
+      }
+
+      if (!ALLOWED_LANGUAGES.includes(selectedLanguage)) {
+        alert(`${ALLOWED_LANGUAGES.toString()} 중에서 언어를 선택해주세요.`);
         return;
       }
 
@@ -191,6 +215,7 @@
       xhr.open('POST', url, true);
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('lang', selectedLanguage);
 
       xhr.send(formData);
     }
