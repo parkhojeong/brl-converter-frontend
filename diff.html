@@ -28,7 +28,7 @@
     }
 
     #diff-compare-result {
-      width: 100%;
+      width: 45%;
       min-height: 5vh;
       max-height: 50vh;
       border-radius: 10px;
@@ -62,8 +62,6 @@
     <div id="diff-view2"></div>
   </div>
 
-
-
   <button id="diff-compare-button" type="button">비교하기</button>
 
   <div id="diff-compare-result"></div>
@@ -74,7 +72,6 @@
     let brlReadedResult;
     let uploadedImg;
     let imgConvertedResult;
-    let xhr;
     const DIFF_CONVERT_API_URL = "http://3.34.144.130:8000/convert/"
 
     document.getElementById('diff-input-brl').addEventListener('change', function (event) {
@@ -86,7 +83,7 @@
 
           brlReadedResult = res;
 
-          paintText('diff-view1', brlReadedResult);
+          document.getElementById('diff-view1').innerText = brlReadedResult;
         } catch (error) {
           console.error(error);
         }
@@ -105,7 +102,8 @@
         return;
       }
 
-      makeFormRequest(DIFF_CONVERT_API_URL, uploadedImg, handleConvertResponse);
+      document.getElementById('diff-view2').innerText = "";
+      makeFormRequest(DIFF_CONVERT_API_URL, uploadedImg);
     });
 
     document.getElementById('diff-compare-button').addEventListener('click', function (event) {
@@ -131,9 +129,12 @@
         return;
       }
 
-      paintDiff("diff-compare-result", brlReadedResult, imgConvertedResult, {
-        defaultColor: "orange"
-      });
+      const ele = document.getElementById('diff-compare-result');
+      while (ele.hasChildNodes()) {
+        ele.removeChild(ele.firstChild);
+      }
+
+      paintDiff(ele, brlReadedResult, imgConvertedResult);
     });
 
     function readFile(file) {
@@ -147,14 +148,8 @@
       });
     }
 
-    function paintText(eleId, text) {
-      const ele = document.getElementById(eleId);
-      console.log(ele);
-      ele.innerText = text;
-      // ele.appendChild(document.createTextNode(text));
-    }
 
-    function paintDiff(eleId, one, other, colorOptions) {
+    function paintDiff(ele, one, other, colorOptions = {}) {
       const diff = Diff.diffChars(one, other);
       const fragment = document.createDocumentFragment();
 
@@ -170,36 +165,34 @@
         fragment.appendChild(span);
       });
 
-      document.getElementById(eleId).appendChild(fragment);
+      ele.appendChild(fragment);
     }
 
     function makeFormRequest(url, file, onload) {
-      xhr = new XMLHttpRequest();
+      const xhr = new XMLHttpRequest();
 
       if (!xhr) {
         console.error('xhr 생성 에러');
       }
-      xhr.onload = onload;
+
+      xhr.onload = function handleConvertResponse() {
+        try {
+          if (xhr.status === 200) {
+            imgConvertedResult = xhr.responseText;
+            document.getElementById('diff-view2').innerText = imgConvertedResult;
+          } else {
+            throw new Error(xhr.status, xhr.status.Text);
+          }
+        } catch (e) {
+          console.log(e.description);
+        }
+      };
+
       xhr.open('POST', url, true);
       const formData = new FormData();
       formData.append('file', file);
 
       xhr.send(formData);
-    }
-
-
-    function handleConvertResponse() {
-      try {
-        if (xhr.status === 200) {
-          imgConvertedResult = xhr.responseText;
-          paintText('diff-view2', imgConvertedResult, );
-          console.log(xhr);
-        } else {
-          throw new Error(xhr.status, xhr.status.Text);
-        }
-      } catch (e) {
-        console.log(e.description);
-      }
     }
   </script>
 </body>
