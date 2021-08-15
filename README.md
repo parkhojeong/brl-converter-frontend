@@ -3,7 +3,7 @@
 ### environment requirements
 - nothing special 
 
-### 
+### local test
 - `npm install`
 - run(local): `npx http-server`
 
