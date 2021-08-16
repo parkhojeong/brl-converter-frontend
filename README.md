@@ -1,7 +1,8 @@
 # brl-converter-frontend
 
 ### environment requirements
-- nothing special 
+- npm 6.14.6
+- node 12.18.3
 
 ### local test
 - `npm install`
