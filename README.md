@@ -10,8 +10,10 @@
 
 ### feature
 - visualize uploaded brl format file to braille text(1)
-- convert img to braille text(2) and visualize (2)
-- compare (1) and (2) by "An O(ND) Difference Algorithm and its Variations" (Myers, 1986)
+- convert img to braille text(2) by network call 
+- visualize braille text(2) 
+- compare uploaded braille text(1) and converted braille text(2)
+- comparison algorithm is `"An O(ND) Difference Algorithm and its Variations" (Myers, 1986)`
 
 ### using package
 - jsdiff (https://github.com/kpdecker/jsdiff)
