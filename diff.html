@@ -172,7 +172,7 @@
           }
 
           document.getElementById('diff-view2').innerText = '';
-          document.getElementById('diff-form-submit').disabled = true;
+          setLoading(true);
 
           const xhr = new XMLHttpRequest();
           if (!xhr) {
@@ -180,7 +180,7 @@
           }
 
           xhr.onload = function handleConvertResponse() {
-            document.getElementById('diff-form-submit').disabled = false;
+            setLoading(false);
 
             try {
               if (xhr.status === 200) {
@@ -194,6 +194,12 @@
             } catch (e) {
               console.log(e.description);
             }
+          };
+
+          xhr.onerror = function (e) {
+            alert('에러가 발생하였습니다');
+            setLoading(false);
+            console.error(e);
           };
 
           xhr.open('POST', DIFF_CONVERT_API_URL, true);
@@ -236,6 +242,10 @@
 
           paintDiff(ele, brlReadedResult, imgConvertedResult);
         });
+
+      function setLoading(boolean) {
+        document.getElementById('diff-form-submit').disabled = !!boolean;
+      }
 
       function readFile(file) {
         return new Promise(function (resolve, reject) {
