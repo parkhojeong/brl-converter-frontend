@@ -1,225 +1,241 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <style>
+      .diff-input-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-gap: 50px;
+      }
 
-<head>
-  <style>
-    .diff-input-container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      grid-gap: 50px;
-    }
+      .diff-input-container > #diff-form > select {
+        margin: 10px 0;
+      }
 
-    .diff-input-container>#diff-form>select {
-      margin: 10px 0;
-    }
+      .diff-view-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-column-gap: 50px;
+        height: 50vh;
+        background-color: grey;
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 10px;
+      }
 
-    .diff-view-container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      grid-column-gap: 50px;
-      height: 50vh;
-      background-color: grey;
-      padding: 20px;
-      margin: 20px 0;
-      border-radius: 10px;
-    }
+      #diff-view1,
+      #diff-view2 {
+        background-color: white;
+        overflow: auto;
+        font-size: 20px;
+      }
 
-    #diff-view1,
-    #diff-view2 {
-      background-color: white;
-      overflow: auto;
-      font-size: 20px;
-    }
+      #diff-compare-result {
+        width: 45%;
+        min-height: 5vh;
+        max-height: 50vh;
+        border-radius: 10px;
+        box-shadow: 0 0 10px black;
+        margin-top: 10px;
+        font-size: 20px;
+        overflow: scroll;
+      }
+    </style>
+  </head>
 
-    #diff-compare-result {
-      width: 45%;
-      min-height: 5vh;
-      max-height: 50vh;
-      border-radius: 10px;
-      box-shadow: 0 0 10px black;
-      margin-top: 10px;
-      font-size: 20px;
-      overflow: scroll;
-    }
-  </style>
-</head>
-
-<body>
-  <div class="diff-input-container">
-    <label>
-      BRL 업로드:
-      <input type="file" id="diff-input-brl" />
-    </label>
-
-    <form id="diff-form" enctype="multipart/form-data">
+  <body>
+    <div class="diff-input-container">
       <label>
-        사진 업로드:
-        <input type="file" id="diff-input-img" />
+        BRL 업로드:
+        <input type="file" id="diff-input-brl" />
       </label>
-      <select id="diff-select-language" name="language">
-        <option value="EN" selected>English (grade 1)</option>
-        <option value="RU">Russian</option>
-        <option value="UZ">Uzbek (cyrillic)</option>
-        <option value="UZL">Uzbek (latin)</option>
-        <option value="LV">Latvian</option>
-        <option value="GR">Greek</option>
-      </select>
-      <br />
-      <button type="submit">사진을 brl로 변환하기</button>
 
-    </form>
-  </div>
+      <form id="diff-form" enctype="multipart/form-data">
+        <label>
+          사진 업로드:
+          <input type="file" id="diff-input-img" />
+        </label>
+        <select id="diff-select-language" name="language">
+          <option value="EN" selected>English (grade 1)</option>
+          <option value="RU">Russian</option>
+          <option value="UZ">Uzbek (cyrillic)</option>
+          <option value="UZL">Uzbek (latin)</option>
+          <option value="LV">Latvian</option>
+          <option value="GR">Greek</option>
+        </select>
+        <br />
+        <button type="submit">사진을 brl로 변환하기</button>
+      </form>
+    </div>
 
-  <div class="diff-view-container">
-    <div id="diff-view1"></div>
-    <div id="diff-view2"></div>
-  </div>
+    <div class="diff-view-container">
+      <div id="diff-view1"></div>
+      <div id="diff-view2"></div>
+    </div>
 
-  <button id="diff-compare-button" type="button">비교하기</button>
+    <button id="diff-compare-button" type="button">비교하기</button>
 
-  <div id="diff-compare-result"></div>
+    <div id="diff-compare-result"></div>
 
-  <script src="./node_modules/diff/dist/diff.js"></script>
-  <script>
-    let uploadedBrl;
-    let brlReadedResult;
-    let uploadedImg;
-    let imgConvertedResult;
-    let selectedLanguage = "EN";
-    const ALLOWED_LANGUAGES = ['EN', 'RU', 'UZ', 'UZL', 'LV', 'GR'];
-    const DIFF_CONVERT_API_URL = "http://3.34.144.130:8000/convert/"
+    <script src="./node_modules/diff/dist/diff.js"></script>
+    <script>
+      let uploadedBrl;
+      let brlReadedResult;
+      let uploadedImg;
+      let imgConvertedResult;
+      let selectedLanguage = 'EN';
+      const ALLOWED_LANGUAGES = ['EN', 'RU', 'UZ', 'UZL', 'LV', 'GR'];
+      const DIFF_CONVERT_API_URL = 'http://3.34.144.130:8000/convert/';
 
-    document.getElementById('diff-input-brl').addEventListener('change', function (event) {
-      uploadedBrl = event.target.files[0];
+      document
+        .getElementById('diff-input-brl')
+        .addEventListener('change', function (event) {
+          uploadedBrl = event.target.files[0];
 
-      (async function read() {
-        try {
-          const res = await readFile(uploadedBrl);
+          (async function read() {
+            try {
+              const res = await readFile(uploadedBrl);
 
-          brlReadedResult = res;
+              brlReadedResult = res;
 
-          document.getElementById('diff-view1').innerText = brlReadedResult;
-        } catch (error) {
-          console.error(error);
-        }
-      })();
-    });
+              document.getElementById('diff-view1').innerText = brlReadedResult;
+            } catch (error) {
+              console.error(error);
+            }
+          })();
+        });
 
-    document.getElementById('diff-input-img').addEventListener('change', function (event) {
-      uploadedImg = event.target.files[0];
-    });
+      document
+        .getElementById('diff-input-img')
+        .addEventListener('change', function (event) {
+          uploadedImg = event.target.files[0];
+        });
 
-    document.getElementById('diff-select-language').addEventListener('change', function (event) {
-      selectedLanguage = event.target.value;
-    })
+      document
+        .getElementById('diff-select-language')
+        .addEventListener('change', function (event) {
+          selectedLanguage = event.target.value;
+        });
 
-    document.getElementById('diff-form').addEventListener('submit', function (event) {
-      event.preventDefault();
+      document
+        .getElementById('diff-form')
+        .addEventListener('submit', function (event) {
+          event.preventDefault();
 
-      if (!uploadedImg) {
-        alert('변환할 이미지를 업로드 해주세요');
-        return;
-      }
-
-      if (!ALLOWED_LANGUAGES.includes(selectedLanguage)) {
-        alert(`${ALLOWED_LANGUAGES.toString()} 중에서 언어를 선택해주세요.`);
-        return;
-      }
-
-      document.getElementById('diff-view2').innerText = "";
-      makeFormRequest(DIFF_CONVERT_API_URL, uploadedImg);
-    });
-
-    document.getElementById('diff-compare-button').addEventListener('click', function (event) {
-      if (!uploadedBrl) {
-        alert('brl 파일을 업로드 해주세요.');
-        return;
-      }
-
-      if (!brlReadedResult) {
-        alert(
-          'brl 파일 변환에 실패하였습니다. brl 형식의 파일을 다시 업로드 해주세요.'
-        );
-        return;
-      }
-
-      if (!uploadedImg) {
-        alert('사진을 업로드한 후 변환을 해주세요.');
-        return;
-      }
-
-      if (!imgConvertedResult) {
-        alert('업로드한 사진을 변환해주세요.');
-        return;
-      }
-
-      const ele = document.getElementById('diff-compare-result');
-      while (ele.hasChildNodes()) {
-        ele.removeChild(ele.firstChild);
-      }
-
-      paintDiff(ele, brlReadedResult, imgConvertedResult);
-    });
-
-    function readFile(file) {
-      return new Promise(function (resolve, reject) {
-        var fr = new FileReader();
-        fr.onload = function () {
-          resolve(fr.result);
-        };
-        fr.onerror = reject;
-        fr.readAsText(file);
-      });
-    }
-
-
-    function paintDiff(ele, one, other, colorOptions = {}) {
-      const diff = Diff.diffChars(one, other);
-      const fragment = document.createDocumentFragment();
-
-      const {
-        addedColor = 'green', removedColor = 'red', defaultColor = 'grey'
-      } = colorOptions;
-
-      diff.forEach((part) => {
-        const color = part.added ? addedColor : part.removed ? removedColor : defaultColor;
-        const span = document.createElement('span');
-        span.style.color = color;
-        span.appendChild(document.createTextNode(part.value));
-        fragment.appendChild(span);
-      });
-
-      ele.appendChild(fragment);
-    }
-
-    function makeFormRequest(url, file, onload) {
-      const xhr = new XMLHttpRequest();
-
-      if (!xhr) {
-        console.error('xhr 생성 에러');
-      }
-
-      xhr.onload = function handleConvertResponse() {
-        try {
-          if (xhr.status === 200) {
-            imgConvertedResult = xhr.responseText;
-            document.getElementById('diff-view2').innerText = imgConvertedResult;
-          } else {
-            throw new Error(xhr.status, xhr.status.Text);
+          if (!uploadedImg) {
+            alert('변환할 이미지를 업로드 해주세요');
+            return;
           }
-        } catch (e) {
-          console.log(e.description);
+
+          if (!ALLOWED_LANGUAGES.includes(selectedLanguage)) {
+            alert(
+              `${ALLOWED_LANGUAGES.toString()} 중에서 언어를 선택해주세요.`
+            );
+            return;
+          }
+
+          document.getElementById('diff-view2').innerText = '';
+          makeFormRequest(DIFF_CONVERT_API_URL, uploadedImg);
+        });
+
+      document
+        .getElementById('diff-compare-button')
+        .addEventListener('click', function (event) {
+          if (!uploadedBrl) {
+            alert('brl 파일을 업로드 해주세요.');
+            return;
+          }
+
+          if (!brlReadedResult) {
+            alert(
+              'brl 파일 변환에 실패하였습니다. brl 형식의 파일을 다시 업로드 해주세요.'
+            );
+            return;
+          }
+
+          if (!uploadedImg) {
+            alert('사진을 업로드한 후 변환을 해주세요.');
+            return;
+          }
+
+          if (!imgConvertedResult) {
+            alert('업로드한 사진을 변환해주세요.');
+            return;
+          }
+
+          const ele = document.getElementById('diff-compare-result');
+          while (ele.hasChildNodes()) {
+            ele.removeChild(ele.firstChild);
+          }
+
+          paintDiff(ele, brlReadedResult, imgConvertedResult);
+        });
+
+      function readFile(file) {
+        return new Promise(function (resolve, reject) {
+          var fr = new FileReader();
+          fr.onload = function () {
+            resolve(fr.result);
+          };
+          fr.onerror = reject;
+          fr.readAsText(file);
+        });
+      }
+
+      function paintDiff(ele, one, other, colorOptions = {}) {
+        const diff = Diff.diffChars(one, other);
+        const fragment = document.createDocumentFragment();
+
+        const {
+          addedColor = 'green',
+          removedColor = 'red',
+          defaultColor = 'grey',
+        } = colorOptions;
+
+        diff.forEach((part) => {
+          const color = part.added
+            ? addedColor
+            : part.removed
+            ? removedColor
+            : defaultColor;
+          const span = document.createElement('span');
+          span.style.color = color;
+          span.appendChild(document.createTextNode(part.value));
+          fragment.appendChild(span);
+        });
+
+        ele.appendChild(fragment);
+      }
+
+      function makeFormRequest(url, file, onload) {
+        const xhr = new XMLHttpRequest();
+
+        if (!xhr) {
+          console.error('xhr 생성 에러');
         }
-      };
 
-      xhr.open('POST', url, true);
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('lang', selectedLanguage);
+        xhr.onload = function handleConvertResponse() {
+          try {
+            if (xhr.status === 200) {
+              imgConvertedResult = xhr.responseText;
+              document.getElementById(
+                'diff-view2'
+              ).innerText = imgConvertedResult;
+            } else {
+              throw new Error(xhr.status, xhr.status.Text);
+            }
+          } catch (e) {
+            console.log(e.description);
+          }
+        };
 
-      xhr.send(formData);
-    }
-  </script>
-</body>
+        xhr.open('POST', url, true);
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('lang', selectedLanguage);
 
+        xhr.send(formData);
+      }
+    </script>
+  </body>
 </html>
