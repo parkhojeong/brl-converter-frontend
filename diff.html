@@ -40,6 +40,29 @@
         font-size: 20px;
         overflow: scroll;
       }
+
+      .diff-form-submit-wrapper {
+        display: flex;
+      }
+
+      #diff-form-submit:disabled + .loading {
+        border: 4px solid #f3f3f3; /* Light grey */
+        border-top: 4px solid #3498db; /* Blue */
+        border-radius: 50%;
+        width: 14px;
+        height: 14px;
+        animation: spin 2s linear infinite;
+        margin-left: 5px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
     </style>
   </head>
 
@@ -64,7 +87,12 @@
           <option value="GR">Greek</option>
         </select>
         <br />
-        <button type="submit">사진을 brl로 변환하기</button>
+        <div class="diff-form-submit-wrapper">
+          <button type="submit" id="diff-form-submit">
+            사진을 brl로 변환하기
+          </button>
+          <div class="loading"></div>
+        </div>
       </form>
     </div>
 
@@ -144,7 +172,36 @@
           }
 
           document.getElementById('diff-view2').innerText = '';
-          makeFormRequest(DIFF_CONVERT_API_URL, uploadedImg);
+          document.getElementById('diff-form-submit').disabled = true;
+
+          const xhr = new XMLHttpRequest();
+          if (!xhr) {
+            console.error('xhr 생성 에러');
+          }
+
+          xhr.onload = function handleConvertResponse() {
+            document.getElementById('diff-form-submit').disabled = false;
+
+            try {
+              if (xhr.status === 200) {
+                imgConvertedResult = xhr.responseText;
+                document.getElementById(
+                  'diff-view2'
+                ).innerText = imgConvertedResult;
+              } else {
+                throw new Error(xhr.status, xhr.status.Text);
+              }
+            } catch (e) {
+              console.log(e.description);
+            }
+          };
+
+          xhr.open('POST', DIFF_CONVERT_API_URL, true);
+          const formData = new FormData();
+          formData.append('file', uploadedImg);
+          formData.append('lang', selectedLanguage);
+
+          xhr.send(formData);
         });
 
       document
@@ -214,36 +271,6 @@
         });
 
         ele.appendChild(fragment);
-      }
-
-      function makeFormRequest(url, file, onload) {
-        const xhr = new XMLHttpRequest();
-
-        if (!xhr) {
-          console.error('xhr 생성 에러');
-        }
-
-        xhr.onload = function handleConvertResponse() {
-          try {
-            if (xhr.status === 200) {
-              imgConvertedResult = xhr.responseText;
-              document.getElementById(
-                'diff-view2'
-              ).innerText = imgConvertedResult;
-            } else {
-              throw new Error(xhr.status, xhr.status.Text);
-            }
-          } catch (e) {
-            console.log(e.description);
-          }
-        };
-
-        xhr.open('POST', url, true);
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('lang', selectedLanguage);
-
-        xhr.send(formData);
       }
     </script>
   </body>
