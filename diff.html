@@ -201,7 +201,11 @@
           formData.append('file', uploadedImg);
           formData.append('lang', selectedLanguage);
 
-          xhr.send(formData);
+          const sendRes = xhr.send(formData);
+          if (!sendRes) {
+            alert('인터넷 연결 상태를 확인해주세요.');
+            document.getElementById('diff-form-submit').disabled = false;
+          }
         });
 
       document
