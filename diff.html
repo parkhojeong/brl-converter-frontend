@@ -23,6 +23,11 @@
         border-radius: 10px;
       }
 
+      #diff-form-image-view {
+        width: 150px;
+        height: 150px;
+      }
+
       #diff-view1,
       #diff-view2 {
         background-color: white;
@@ -77,7 +82,9 @@
         <label>
           사진 업로드:
           <input type="file" id="diff-input-img" />
+          <img id="diff-form-image-view" src="#" alt="업로드한 이미지" />
         </label>
+        <br />
         <select id="diff-select-language" name="language">
           <option value="EN" selected>English (grade 1)</option>
           <option value="RU">Russian</option>
@@ -146,6 +153,9 @@
         .getElementById('diff-input-img')
         .addEventListener('change', function (event) {
           uploadedImg = event.target.files[0];
+          document.getElementById(
+            'diff-form-image-view'
+          ).src = URL.createObjectURL(event.target.files[0]);
         });
 
       document
