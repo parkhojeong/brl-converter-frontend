@@ -35,6 +35,10 @@
         font-size: 20px;
       }
 
+      #diff-compare-result-guide {
+        margin-top: 5px;
+      }
+
       #diff-compare-result {
         width: 45%;
         min-height: 5vh;
@@ -110,6 +114,7 @@
 
     <button id="diff-compare-button" type="button">비교하기</button>
 
+    <div id="diff-compare-result-guide"></div>
     <div id="diff-compare-result"></div>
 
     <script src="./node_modules/diff/dist/diff.js"></script>
@@ -269,7 +274,7 @@
       }
 
       function paintDiff(ele, one, other, colorOptions = {}) {
-        const diff = Diff.diffChars(one, other);
+        const diff = Diff.diffChars(one, other + '\n');
         const fragment = document.createDocumentFragment();
 
         const {
@@ -277,6 +282,13 @@
           removedColor = 'red',
           defaultColor = 'grey',
         } = colorOptions;
+
+        if (diff.length === 1 && !diff[0].added && !diff.removed) {
+          document.getElementById('diff-compare-result-guide').innerText =
+            '오타가 없습니다.';
+        } else {
+          document.getElementById('diff-compare-result-guide').innerText = '';
+        }
 
         diff.forEach((part) => {
           const color = part.added
