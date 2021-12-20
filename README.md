@@ -1,5 +1,7 @@
 # brl-converter-frontend
 
+- 요구사항에서 webpack, babel 등과 같은 번들러, 트랜스파일러 사용이 제한되어 vanilla javascript로 구현
+
 ### environment requirements
 - npm 6.14.6+
 - node 12.18.3+
